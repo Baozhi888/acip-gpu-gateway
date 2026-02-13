@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  # =============================================
+  # ACIP GPU Gateway
+  # =============================================
+  gateway:
+    build: .
+    container_name: acip-gpu-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - GATEWAY_PORT=3000
+      - GATEWAY_HOST=0.0.0.0
+      - REDIS_URL=redis://redis:6379
+      - FASTAPI_URL=http://fastapi:8000
+      - FASTAPI_TIMEOUT=30000
+      - AUTH_ENABLED=true
+      - AUTH_TOKEN_SALT=distributed-gpu-inference-v1
+      - RATE_LIMIT_ENABLED=true
+      - RATE_LIMIT_WINDOW_MS=60000
+      - RATE_LIMIT_MAX_REQUESTS=100
+      - CACHE_ENABLED=true
+      - CACHE_TTL_SECONDS=60
+      - CACHE_MAX_SIZE=1000
+      - ROUTER_STRATEGY=round-robin
+      - METRICS_ENABLED=true
+      - METRICS_PATH=/gateway/metrics
+      - LOG_LEVEL=info
+      - CORS_ORIGIN=*
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/gateway/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - gpu-inference
+
+  # =============================================
+  # Redis (shared between Gateway and FastAPI)
+  # =============================================
+  redis:
+    image: redis:7-alpine
+    container_name: acip-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - gpu-inference
+
+  # =============================================
+  # FastAPI GPU Inference Server (reference)
+  # Uncomment and configure to run the Python backend
+  # =============================================
+  # fastapi:
+  #   image: your-fastapi-inference-image:latest
+  #   container_name: gpu-inference-server
+  #   ports:
+  #     - "8000:8000"
+  #   environment:
+  #     - REDIS_URL=redis://redis:6379
+  #     - DATABASE_URL=postgresql://user:pass@postgres:5432/gpuinfer
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #   restart: unless-stopped
+  #   networks:
+  #     - gpu-inference
+
+volumes:
+  redis-data:
+    driver: local
+
+networks:
+  gpu-inference:
+    driver: bridge
