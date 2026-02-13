@@ -54,7 +54,7 @@ Client → ACIP Gateway (:3000) → FastAPI Server (:8000) → GPU Workers
 
 ```bash
 # Clone and configure
-git clone <repo-url> acip-gpu-gateway
+git clone https://github.com/Baozhi888/acip-gpu-gateway.git acip-gpu-gateway
 cd acip-gpu-gateway
 cp .env.example .env
 ```

@@ -41,7 +41,7 @@ Client → [ACIP Gateway :3000] → [FastAPI Server :8000] → [GPU Workers]
 ### Installation
 
 ```bash
-git clone <repo-url> acip-gpu-gateway
+git clone https://github.com/Baozhi888/acip-gpu-gateway.git acip-gpu-gateway
 cd acip-gpu-gateway
 npm install
 ```

@@ -175,7 +175,7 @@ docker compose down
 
 ```bash
 # Clone and install
-git clone <repo-url> acip-gpu-gateway
+git clone https://github.com/Baozhi888/acip-gpu-gateway.git acip-gpu-gateway
 cd acip-gpu-gateway
 npm ci --production=false
 npm run build

@@ -41,7 +41,7 @@ ACIP GPU Gateway 是一个放置在现有 FastAPI GPU 推理服务前面的 API 
 ### 安装
 
 ```bash
-git clone <repo-url> acip-gpu-gateway
+git clone https://github.com/Baozhi888/acip-gpu-gateway.git acip-gpu-gateway
 cd acip-gpu-gateway
 npm install
 ```
